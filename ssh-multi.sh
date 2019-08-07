@@ -5,8 +5,8 @@
 # Based on D.Kovalov work : https://gist.github.com/dmytro/3984680
 
 # config
-#user=$USER # user use for ssh connection
-user=root
+user=$USER # user use for ssh connection
+#user=root
 tmux_session_name="multi-ssh"
 
 usage() {
@@ -30,10 +30,14 @@ starttmux() {
     for i in "${hosts[@]}"
     do
         tmux split-window -t :"${windowname}" -h "ssh $user@$i"
-        tmux select-layout -t :"${windowname}" tiled > /dev/null	
+        #tmux select-layout -t :"${windowname}" tiled 2> /dev/null
+	#tmux select-layout -t :"${windowname}" even-horizontal 2> /dev/null
+	tmux select-layout -t :"${windowname}" even-vertical 2> /dev/null	
     done
-    tmux select-pane -t 0
-    tmux set-window-option -t :"${windowname}"  synchronize-panes on > /dev/null
+    # select the first pane (of many)
+    # tmux select-pane -t 0
+    @ set all panes to have the same kbd input
+    #tmux set-window-option -t :"${windowname}"  synchronize-panes on > /dev/null
 }
 
 checkopt() {
@@ -44,7 +48,7 @@ checkopt() {
     if [ -z "$TMUX" ]; then # if not in a tmux session create one
 	# check that there is not an other session with same name
 	compteur=0
-	for session in $(tmux ls | awk '{print substr($1, 1, length($1)-1)}')
+	for session in $(tmux ls 2> /dev/null | awk '{print substr($1, 1, length($1)-1)}')
 	do
 	    ((compteur++))
 	    if [ "$session" != "X" ]; then
